@@ -5,11 +5,21 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 (async () => {
   const browser = await puppeteer.launch({
-    headless: true, // necesario para servidores sin GUI
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    headless: true, // necesario para contenedores
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      '--window-size=1920,1080'
+    ]
   });
+
   const page = await browser.newPage();
-  await page.goto('https://licencias.mtc.gob.pe/#/index', { waitUntil: 'networkidle2' });
+  await page.goto('https://licencias.mtc.gob.pe/#/index', {
+    waitUntil: 'networkidle2',
+    timeout: 60000 // 60s para evitar TimeoutError
+  });
 
   // 1️⃣ Esperar modal inicial y cerrar
   try {
@@ -46,6 +56,7 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
   await page.waitForSelector('app-captcha-imagenes-popup img');
   const consigna = await page.$eval('app-captcha-imagenes-popup .tituloConsigna p', el => el.innerText.toLowerCase());
+
   const imgs = await page.$$('app-captcha-imagenes-popup img');
   for (const img of imgs) {
     const src = await (await img.getProperty('src')).jsonValue();
@@ -71,7 +82,7 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
   await page.click('button.mat-raised-button');
 
   // 7️⃣ Esperar resultados
-  await page.waitForNavigation({ waitUntil: 'networkidle2' });
+  await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 60000 });
   await page.waitForSelector('app-search');
 
   // 8️⃣ Extraer datos del conductor
