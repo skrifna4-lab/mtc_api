@@ -1,7 +1,7 @@
 {
   "name": "mtc_scraper",
   "version": "1.0.0",
-  "description": "Scraper para MTC con Puppeteer",
+  "description": "Scraper para MTC con Puppeteer listo para contenedor",
   "main": "mtc_scraper.js",
   "scripts": {
     "start": "node mtc_scraper.js"
